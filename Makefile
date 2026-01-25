@@ -1,5 +1,5 @@
-STUID = 231220000
-STUNAME = 张三
+STUID = 114514
+STUNAME = E_Power
 
 # DO NOT modify the following code!!!
 
