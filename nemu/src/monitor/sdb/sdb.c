@@ -18,13 +18,14 @@
 #include <isa.h>
 #include <readline/history.h>
 #include <readline/readline.h>
+#include <stdlib.h>
 
 static int is_batch_mode = false;
 
 void init_regex();
 void init_wp_pool();
 
-/* We use the `readline' library to provide more flexibility to read from stdin.
+/* We use the 'readline' library to provide more flexibility to read from stdin.
  */
 static char *rl_gets() {
   static char *line_read = NULL;
@@ -50,11 +51,16 @@ static int cmd_c(char *args) {
 
 static int cmd_q(char *args) {
   nemu_state.state = NEMU_QUIT;
-  return -1;
+  return -1;//cause the exit of mainloop
 }
 
 static int cmd_help(char *args);
 
+static int cmd_si(char *args) {
+  //int n = atoi(args);
+  return 0;
+
+}
 static struct {
   const char *name;
   const char *description;
@@ -63,7 +69,7 @@ static struct {
     {"help", "Display information about all supported commands", cmd_help},
     {"c", "Continue the execution of the program", cmd_c},
     {"q", "Exit NEMU", cmd_q},
-    {""}
+    {"si", "Step forward N instructions, then suspend execution. If N is not specified, it defaults to 1.", cmd_si}
     /* TODO: Add more commands */
 
 };
@@ -125,6 +131,7 @@ void sdb_mainloop() {
     int i;
     for (i = 0; i < NR_CMD; i++) {
       if (strcmp(cmd, cmd_table[i].name) == 0) {
+        //return if handler returns negative value
         if (cmd_table[i].handler(args) < 0) {
           return;
         }
