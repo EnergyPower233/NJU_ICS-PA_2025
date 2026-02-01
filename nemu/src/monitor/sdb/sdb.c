@@ -18,7 +18,7 @@
 #include <isa.h>
 #include <readline/history.h>
 #include <readline/readline.h>
-#include <stdlib.h>
+//#include <stdlib.h>
 
 static int is_batch_mode = false;
 
@@ -57,9 +57,9 @@ static int cmd_q(char *args) {
 static int cmd_help(char *args);
 
 static int cmd_si(char *args) {
-  //int n = atoi(args);
+  uint64_t steps = (uint64_t)(strtol(args, NULL, 10));
+  cpu_exec(steps);
   return 0;
-
 }
 static struct {
   const char *name;
