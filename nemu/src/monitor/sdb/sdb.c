@@ -18,7 +18,7 @@
 #include <isa.h>
 #include <readline/history.h>
 #include <readline/readline.h>
-//#include <stdlib.h>
+// #include <stdlib.h>
 
 static int is_batch_mode = false;
 
@@ -51,7 +51,7 @@ static int cmd_c(char *args) {
 
 static int cmd_q(char *args) {
   nemu_state.state = NEMU_QUIT;
-  return -1;//cause the exit of mainloop
+  return -1; // cause the exit of mainloop
 }
 
 static int cmd_help(char *args);
@@ -63,13 +63,17 @@ static int cmd_si(char *args) {
 }
 
 static int cmd_info(char *args) {
-  if (strcmp(args, "s") == 0) {
-
-  } else if (strcmp(args, "q") == 0) {
+  // Log Register status
+  if (strcmp(args, "r") == 0) {
+    isa_reg_display();
+  }
+  // Log Watchpoint status
+  else if (strcmp(args, "w") == 0) {
 
   } else {
-    prin
+    printf("Unknown command '%s'\n", args);
   }
+  return 0;
 }
 
 static struct {
@@ -80,7 +84,10 @@ static struct {
     {"help", "Display information about all supported commands", cmd_help},
     {"c", "Continue the execution of the program", cmd_c},
     {"q", "Exit NEMU", cmd_q},
-    {"si", "Step forward N instructions, then suspend execution. If N is not specified, it defaults to 1.", cmd_si}
+    {"si",
+     "Step forward N instructions, then suspend execution. If N is not "
+     "specified, it defaults to 1.",
+     cmd_si},
     {"info", "Print status", cmd_info}
     /* TODO: Add more commands */
 };
@@ -142,7 +149,7 @@ void sdb_mainloop() {
     int i;
     for (i = 0; i < NR_CMD; i++) {
       if (strcmp(cmd, cmd_table[i].name) == 0) {
-        //return if handler returns negative value
+        // return if handler returns negative value
         if (cmd_table[i].handler(args) < 0) {
           return;
         }
