@@ -61,6 +61,17 @@ static int cmd_si(char *args) {
   cpu_exec(steps);
   return 0;
 }
+
+static int cmd_info(char *args) {
+  if (strcmp(args, "s") == 0) {
+
+  } else if (strcmp(args, "q") == 0) {
+
+  } else {
+    prin
+  }
+}
+
 static struct {
   const char *name;
   const char *description;
@@ -70,8 +81,8 @@ static struct {
     {"c", "Continue the execution of the program", cmd_c},
     {"q", "Exit NEMU", cmd_q},
     {"si", "Step forward N instructions, then suspend execution. If N is not specified, it defaults to 1.", cmd_si}
+    {"info", "Print status", cmd_info}
     /* TODO: Add more commands */
-
 };
 
 #define NR_CMD ARRLEN(cmd_table)
