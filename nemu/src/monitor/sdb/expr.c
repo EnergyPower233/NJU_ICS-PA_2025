@@ -230,7 +230,7 @@ static uint32_t eval(int p, int q) {
         continue;
       }
       if (is_operand(tokens[i].type)) {
-        continue; // pass the token which is not operation symbol
+        continue; // pass the token which is not operator
       } else if (tokens[i].type == TK_NEG || tokens[i].type == TK_DEREF ||
                  tokens[i].type == TK_NOT) {
         if (i == p) {
@@ -252,7 +252,8 @@ static uint32_t eval(int p, int q) {
     // since the value of op is determined,
     /* We should do more things here. */
     uint32_t val1;
-    if (tokens[op].type == TK_NEG || tokens[op].type == TK_DEREF) {
+    if (tokens[op].type == TK_NEG || tokens[op].type == TK_DEREF ||
+        tokens[op].type == TK_NOT) {
       val1 = 0;
     } else {
       val1 = eval(p, op - 1);
