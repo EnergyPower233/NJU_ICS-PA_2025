@@ -259,7 +259,8 @@ static uint32_t eval(int p, int q, bool *success) {
       val1 = eval(p, op - 1, success);
     }
     uint32_t val2 = eval(op + 1, q, success);
-    return calculate(val1, val2, op, success);
+    uint32_t res = calculate(val1, val2, op, success);
+    return success ? res : -1;
   }
 }
 
@@ -271,7 +272,7 @@ word_t expr(char *e, bool *success) {
   /* TODO: Insert codes to evaluate the expression. */
   *success = true;
   word_t res = eval(0, nr_token - 1, success);
-  return *success == true ? res : 0;
+  return *success ? res : 0;
 }
 
 // used functions
