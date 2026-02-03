@@ -210,10 +210,16 @@ static uint32_t eval(int p, int q, bool *success) {
     /* The expression is surrounded by a matched pair of parentheses.
      * If that is the case, just throw away the parentheses.
      */
+    // Check for empty parentheses: ()
+    if (p + 1 == q) {
+      printf("Error: Empty parentheses\n");
+      *success = false;
+      return 0;
+    }
     return eval(p + 1, q - 1, success);
   } else {
     if (!not_bnf_check_parentheses(p, q)) {
-      printf("cant pair the parentheses\n");
+      printf("Can not pair the parentheses\n");
       *success = false;
       return -1;
     }
@@ -387,6 +393,6 @@ static int get_precedence(int type) {
   case TK_NEG:
     return 6;
   default:
-    panic("Unkown Operator Preference");
+    panic("Unkown Operator Preference\n");
   }
 }
