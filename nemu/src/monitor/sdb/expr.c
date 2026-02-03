@@ -42,6 +42,7 @@ enum {
   TK_SMEQ,
   TK_LG,
   TK_SM,
+  TK_NOT,
   /*TODO: DEREF*/
   /* TODO: Add more token types */
 
@@ -57,7 +58,7 @@ static struct rule {
     {" +", TK_NOTYPE}, // spaces
     {"\\(", TK_LP},
     {"\\)", TK_RP},
-
+    {"!", TK_NOT},
     {"==", TK_EQ}, // equal
     {"!=", TK_NOTEQ},
     {"&&", TK_AND},
