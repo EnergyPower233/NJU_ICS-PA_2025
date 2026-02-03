@@ -62,6 +62,7 @@ static struct rule {
     {"!=", TK_NOTEQ},
     {"!", TK_NOT}, // ! must after !=
     {"&&", TK_AND},
+    {"||", TK_OR},
     {">=", TK_LGEQ},
     {"<=", TK_SMEQ},
 
