@@ -230,7 +230,8 @@ static uint32_t eval(int p, int q) {
       }
       if (is_operand(tokens[i].type)) {
         continue; // pass the token which is not operation symbol
-      } else if (tokens[i].type == TK_NEG || tokens[i].type == TK_DEREF) {
+      } else if (tokens[i].type == TK_NEG || tokens[i].type == TK_DEREF ||
+                 tokens[i].type == TK_NOT) {
         if (i == p) {
           op = i;
           break;
@@ -381,6 +382,7 @@ static int get_precedence(int type) {
   case TK_DIV:
     return 5;
   case TK_DEREF:
+  case TK_NOT:
   case TK_NEG:
     return 6;
   default:
