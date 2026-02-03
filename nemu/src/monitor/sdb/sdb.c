@@ -57,7 +57,7 @@ static int cmd_q(char *args) {
 static int cmd_help(char *args);
 
 static int cmd_si(char *args) {
-  if (!args) {
+  if (args == NULL) {
     cpu_exec(1);
     return 0;
   }
@@ -70,7 +70,7 @@ static int cmd_si(char *args) {
 }
 
 static int cmd_info(char *args) {
-  if (!args) {
+  if (args == NULL) {
     printf("Too few arguments: Command lose\nUsage:\ninfo r //check register "
            "info\ninfo w //check watchpoint info\n");
     return 0;
@@ -101,7 +101,7 @@ static int cmd_p(char *args) {
   bool success = true;
   word_t result = expr(args, &success);
   if (success) {
-    printf("%u (0x%08x)\n", result, result);
+    printf("%u (0x%8x)\n", result, result);
   } else {
     printf("Invalid expression\n");
   }
