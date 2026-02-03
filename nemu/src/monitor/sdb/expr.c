@@ -22,7 +22,7 @@
 #include <regex.h>
 #include <stdint.h>
 #include <stdio.h>
-
+#include <string.h>
 enum {
   TK_NOTYPE = 256,
   TK_EQ,
@@ -76,10 +76,10 @@ static struct rule {
     {">", TK_LG},
     {"<", TK_SM},
 
-    {"\\$[$frsgta][0-9aps]([01])?", TK_REG}, // REG
-    {"0[Xx][0-9a-fA-F]{1,29}", TK_HEX},      // HEX
-    {"[0-9]{1,31}", TK_INT}, // INT Ensure that str does not overflow
-                             /*FIXME: TK_DEREF and the usage of TK_REG*/
+    {"\\$[a-z0-9]+", TK_REG},           // REG
+    {"0[Xx][0-9a-fA-F]{1,29}", TK_HEX}, // HEX
+    {"[0-9]{1,31}", TK_INT},            // INT Ensure that str does not overflow
+                                        /*FIXME: TK_DEREF and the usage of */
 
 };
 
@@ -135,7 +135,7 @@ static bool make_token(char *e) {
 
         position += substr_len;
 
-        /* TODO: Now a new token is recognized with rules[i]. Add codes
+        /* Now a new token is recognized with rules[i]. Add codes
          * to record the token in the array `tokens'. For certain types
          * of tokens, some extra actions should be performed.
          */
@@ -196,16 +196,18 @@ static word_t eval(int p, int q, bool *success) {
       return (word_t)strtoul(tokens[p].str, NULL, 10);
     case TK_HEX:
       return (word_t)strtoul(tokens[p].str, NULL, 16);
-    case TK_REG:
-      TODO();
-      /*TODO: FIX THIS*/
-      return 0;
+    case TK_REG: {
+      word_t register_res = isa_reg_str2val(tokens[p].str, success);
+      if (success)
+        return register_res;
+      else
+        return 0;
+    }
     default:
       printf("Unknown Oprand\n");
       *success = false;
       return -1;
     }
-
   } else if (check_parentheses(p, q) == true) {
     /* The expression is surrounded by a matched pair of parentheses.
      * If that is the case, just throw away the parentheses.
@@ -225,12 +227,12 @@ static word_t eval(int p, int q, bool *success) {
     }
     int op = -1, op_precedence = 100; // Given an invalid value
     for (int i = p; i <= q; ++i) {    // Search all tokens one by one
-      if (tokens[i].type == TK_LP) {  // pass all tokens wrapped in parentheses
+      if (tokens[i].type == TK_LP) {  // skip all tokens wrapped in parentheses
         pass_all_parentheses(&i);
         continue;
       }
       if (is_operand(tokens[i].type)) {
-        continue; // pass the token which is not operator
+        continue; // skip the token which is not operator
       } else if (tokens[i].type == TK_NEG || tokens[i].type == TK_DEREF ||
                  tokens[i].type == TK_NOT) {
         if (i == p) { // single operator becomes main operator if and only if it
