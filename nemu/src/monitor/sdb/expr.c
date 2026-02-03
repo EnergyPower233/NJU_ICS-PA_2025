@@ -209,7 +209,7 @@ static uint32_t eval(int p, int q) {
     return eval(p + 1, q - 1);
   } else {
     if (!not_bnf_check_parentheses(p, q)) {
-      panic();
+      panic("cant pair the parentheses");
     }
     int op = -1, op_precedence = 100; // Given an invalid value
     for (int i = p; i <= q; ++i) {    // Search all tokens one by one
