@@ -122,6 +122,7 @@ static int cmd_x(char *args) {
     return 0;
   }
   bool success = true;
+  //
   word_t target_mem = expr(args_e, &success);
   if (success) {
     for (int i = 0; i < N; ++i) {
