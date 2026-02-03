@@ -106,7 +106,7 @@ int main(int argc, char *argv[]) {
     // 2>/dev/null Linux Black Hole
     if (ret != 0)
       continue;
-
+    // popen => pipeopen : open a program and read its stdout
     fp = popen("/tmp/.expr", "r");
     assert(fp != NULL);
 

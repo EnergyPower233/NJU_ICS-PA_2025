@@ -192,3 +192,36 @@ void init_sdb() {
   /* Initialize the watchpoint pool. */
   init_wp_pool();
 }
+
+/*test the expression evaluation */
+void test_expression() {
+  FILE *fp = fopen("/home/epower/ics2025/nemu/tools/gen-expr/input", "r");
+  assert(fp != NULL);
+  char expression[65536];
+  unsigned expected;
+  int cnt = 0;
+  int pass = 0;
+  bool AP = true;                             // All Passed
+  while (fscanf(fp, "%u ", &expected) == 1) { // read the result
+    if (fgets(expression, sizeof(expression), fp) == NULL)
+      break; // The End of the file
+    expression[strcspn(expression, "\n")] =
+        '\0'; // Replace the \n to \0 to make sure the expression string is
+              // valid
+    bool success = true;
+    unsigned result = expr(expression, &success);
+    ++cnt;
+    if (success && result == expected) {
+      ++pass;
+    } else {
+      printf("FAILED on expression: %s\nExpected: %u  But got: %u", expression,
+             expected, result);
+      AP = false;
+    }
+  }
+  fclose(fp);
+  if (AP)
+    printf("%d test cases passed. No cases failed.", pass);
+  else
+    printf("Test: %d/%d passed\n", pass, cnt);
+}
