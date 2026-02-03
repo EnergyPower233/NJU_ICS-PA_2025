@@ -62,7 +62,10 @@ static int cmd_si(char *args) {
     return 0;
   }
   uint64_t steps = (uint64_t)(strtol(args, NULL, 10));
-  cpu_exec(steps ? steps : 1);
+  if (steps)
+    cpu_exec(steps);
+  else
+    printf("Invalid arguments\n");
   return 0;
 }
 
