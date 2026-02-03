@@ -54,21 +54,21 @@ static struct rule {
     /* TODO: Add more rules.
      * Pay attention to the precedence level of different rules.
      */
+    {" +", TK_NOTYPE}, // spaces
     {"\\(", TK_LP},
     {"\\)", TK_RP},
+
+    {"==", TK_EQ}, // equal
+    {"!=", TK_NOTEQ},
+    {"&&", TK_AND},
+    {">=", TK_LGEQ},
+    {"<=", TK_SMEQ},
 
     {"\\+", TK_ADD}, // ADD
     {"-", TK_SUB},   // sub OR NEGATIVE
     {"\\*", TK_MUL}, // mul OR DEREFERENCE
     {"/", TK_DIV},   // div
     // Operation Symbol
-
-    {" +", TK_NOTYPE}, // spaces
-    {"==", TK_EQ},     // equal
-    {"!=", TK_NOTEQ},
-    {"&&", TK_AND},
-    {">=", TK_LGEQ},
-    {"<=", TK_SMEQ},
     {">", TK_LG},
     {"<", TK_SM},
 
