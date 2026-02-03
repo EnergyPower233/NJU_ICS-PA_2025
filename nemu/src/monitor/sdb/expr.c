@@ -177,7 +177,7 @@ static bool check_parentheses(int p, int q);
 static bool not_bnf_check_parentheses(int p, int q);
 static void pass_all_parentheses(int *iterator);
 static uint32_t calculate(uint32_t val1, uint32_t val2, int op);
-
+static int get_precedence(int type);
 static uint32_t eval(int p, int q) {
   if (p > q) {
     /* Bad expression */
@@ -222,9 +222,9 @@ static uint32_t eval(int p, int q) {
     is the main operator. For example, in 1 + 2 + 3,
     the main operator should be the + on the right. */
 
-    int op = -1;                     // Given an invalid value
-    for (int i = p; i <= q; ++i) {   // Search all tokens one by one
-      if (tokens[i].type == TK_LP) { // pass all tokens wrapped in parentheses
+    int op = -1, op_precedence = 100; // Given an invalid value
+    for (int i = p; i <= q; ++i) {    // Search all tokens one by one
+      if (tokens[i].type == TK_LP) {  // pass all tokens wrapped in parentheses
         pass_all_parentheses(&i);
         continue;
       }
@@ -237,18 +237,13 @@ static uint32_t eval(int p, int q) {
         } // single operator becomes main operator if and only if it is the
           // first operator, else it becomes a part of the second
           // expression
-      } else if (tokens[i].type == TK_ADD || tokens[i].type == TK_SUB) {
-        op = i;
-        // save operator + or -, <= ensures the saved operator is the last one
-      } else if (tokens[i].type == TK_MUL || tokens[i].type == TK_DIV) {
-        if (op == -1 || tokens[op].type == TK_MUL ||
-            tokens[op].type == TK_DIV) {
+      } else {
+        int i_precedence = get_precedence(tokens[i].type);
+        if (i_precedence <= op_precedence) { // Prefer low preference and to get
+                                             // rightmost operator
+          op_precedence = i_precedence;
           op = i;
         }
-        // update op if op has not been set or op is also * or /
-        /* while traversing, if there is no operator + or - , save the last * or
-         * /
-         */
       }
     }
     // Now op is the target operator
@@ -364,4 +359,28 @@ static bool check_parentheses(int p, int q) {
     }
   }
   return cnt == 0;
+}
+static int get_precedence(int type) {
+  switch (type) {
+  case TK_OR:
+    return 0;
+  case TK_AND:
+    return 1;
+  case TK_EQ:
+  case TK_NOTEQ:
+    return 2;
+  case TK_SM:
+  case TK_SMEQ:
+  case TK_LG:
+  case TK_LGEQ:
+    return 3;
+  case TK_ADD:
+  case TK_SUB:
+    return 4;
+  case TK_MUL:
+  case TK_DIV:
+    return 5;
+  default:
+    panic("Unkown Operator Preference");
+  }
 }
