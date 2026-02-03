@@ -131,7 +131,7 @@ static int cmd_x(char *args) {
                target_mem);
         return 0;
       }
-      printf("Address: 0x%08x Value: 0x%08x\n", target_mem,
+      printf("Address: 0x%08x | Value: 0x%08x\n", target_mem,
              vaddr_read(target_mem, 4));
       target_mem += 4;
     }
