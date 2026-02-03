@@ -268,6 +268,10 @@ static word_t eval(int p, int q, bool *success) {
 }
 
 word_t expr(char *e, bool *success) {
+  if (e == NULL) {
+    printf("Error: Empty expression\n");
+    return 0;
+  }
   if (!make_token(e)) {
     *success = false;
     return 0;
@@ -336,7 +340,7 @@ static word_t calculate(word_t val1, word_t val2, int op, bool *success) {
     }
     return val1 / val2;
   default:
-    panic("Error: Unknown operator\n");
+    panic("Unknown operator\n");
   }
 }
 /*Parenthese parsing*/
