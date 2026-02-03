@@ -64,18 +64,38 @@ static int cmd_si(char *args) {
 
 static int cmd_info(char *args) {
   // Log Register status
-  if (strcmp(args, "r") == 0) {
+  if (strcmp(args, "r") == 0)
     isa_reg_display();
-  }
   // Log Watchpoint status
   else if (strcmp(args, "w") == 0) {
 
-  } else {
+  } else
     printf("Unknown command '%s'\n", args);
-  }
   return 0;
 }
 
+static int cmd_x(char *args) {
+  /*
+  uint64_t N = (uint64_t)(strtol(args, NULL, 10));
+  char* expr = strtok(args, " ");
+  */
+  return 0;
+}
+static int cmd_p(char *args) {
+  if (args == NULL) {
+    printf("Usage: p EXPR\n");
+    return 0;
+  }
+  bool success = true;
+  word_t result = expr(args, &success);
+  if (success) {
+    printf("%u (0x%08x)\n", result, result);
+  } else {
+    printf("Invalid expression");
+  }
+
+  return 0;
+}
 static struct {
   const char *name;
   const char *description;
@@ -88,7 +108,9 @@ static struct {
      "Step forward N instructions, then suspend execution. If N is not "
      "specified, it defaults to 1.",
      cmd_si},
-    {"info", "Print status", cmd_info}
+    {"info", "Print status of Register or Watchpoint", cmd_info},
+    {"x", "Scan memory", cmd_x},
+    {"p", "Evaluate the expression", cmd_p},
     /* TODO: Add more commands */
 };
 
