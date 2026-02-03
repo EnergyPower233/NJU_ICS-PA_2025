@@ -80,8 +80,6 @@ static struct rule {
     {"\\$[$a-z0-9]+", TK_REG},          // REG
     {"0[Xx][0-9a-fA-F]{1,29}", TK_HEX}, // HEX
     {"[0-9]{1,31}", TK_INT},            // INT Ensure that str does not overflow
-                                        /*FIXME: TK_DEREF and the usage of */
-
 };
 
 #define NR_REGEX ARRLEN(rules)
