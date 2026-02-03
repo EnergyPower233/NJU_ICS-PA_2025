@@ -54,23 +54,27 @@ static struct rule {
     /* TODO: Add more rules.
      * Pay attention to the precedence level of different rules.
      */
+    {"\\(", TK_LP},
+    {"\\)", TK_RP},
 
     {"\\+", TK_ADD}, // ADD
     {"-", TK_SUB},   // sub OR NEGATIVE
     {"\\*", TK_MUL}, // mul OR DEREFERENCE
     {"/", TK_DIV},   // div
     // Operation Symbol
-    {"\\(", TK_LP},
-    {"\\)", TK_RP},
 
     {" +", TK_NOTYPE}, // spaces
     {"==", TK_EQ},     // equal
+    {"!=", TK_NOTEQ},
+    {"&&", TK_AND},
+    {">=", TK_LGEQ},
+    {"<=", TK_SMEQ},
+    {">", TK_LG},
+    {"<", TK_SM},
 
     {"[$rsgta][0-9ap]([01])?", TK_REG}, // REG
     {"0[Xx][0-9a-fA-F]{1,29}", TK_HEX}, // HEX
     {"[0-9]{1,31}", TK_INT},            // INT Ensure that str does not overflow
-    {"!=", TK_NOTEQ},
-    {"&&", TK_AND}
     /*FIXME: TK_DEREF and the usage of TK_REG*/
 
 };
