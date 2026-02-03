@@ -58,9 +58,9 @@ static struct rule {
     {" +", TK_NOTYPE}, // spaces
     {"\\(", TK_LP},
     {"\\)", TK_RP},
-    {"!", TK_NOT},
     {"==", TK_EQ}, // equal
     {"!=", TK_NOTEQ},
+    {"!", TK_NOT}, // ! must after !=
     {"&&", TK_AND},
     {">=", TK_LGEQ},
     {"<=", TK_SMEQ},
