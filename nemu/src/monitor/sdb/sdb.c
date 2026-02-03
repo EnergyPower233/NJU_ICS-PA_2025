@@ -117,6 +117,10 @@ static int cmd_x(char *args) {
     return 0;
   }
   char *args_e = strtok(NULL, "");
+  if (args_e == NULL) {
+    printf("Empty Expression -> Memory Address\n");
+    return 0;
+  }
   bool success = true;
   word_t target_mem = expr(args_e, &success);
   if (success) {
