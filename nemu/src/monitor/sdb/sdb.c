@@ -57,8 +57,12 @@ static int cmd_q(char *args) {
 static int cmd_help(char *args);
 
 static int cmd_si(char *args) {
+  if (!args) {
+    cpu_exec(1);
+    return 0;
+  }
   uint64_t steps = (uint64_t)(strtol(args, NULL, 10));
-  cpu_exec(steps ? steps : 1);
+  cpu_exec(steps);
   return 0;
 }
 
