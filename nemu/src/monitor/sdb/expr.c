@@ -269,7 +269,8 @@ static word_t eval(int p, int q, bool *success) {
 
 word_t expr(char *e, bool *success) {
   if (e == NULL) {
-    printf("Error: Empty expression\n");
+    printf("Error: Empty expression: Passed NULL to expr(char *e, bool "
+           "*success)\n");
     return 0;
   }
   if (!make_token(e)) {
