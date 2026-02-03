@@ -35,6 +35,13 @@ enum {
   TK_SUB,
   TK_MUL,
   TK_DIV,
+  TK_NOTEQ,
+  TK_AND,
+  TK_OR,
+  TK_LGEQ,
+  TK_SMEQ,
+  TK_LG,
+  TK_SM,
   /*TODO: DEREF*/
   /* TODO: Add more token types */
 
@@ -62,6 +69,8 @@ static struct rule {
     {"[$rsgta][0-9ap]([01])?", TK_REG}, // REG
     {"0[Xx][0-9a-fA-F]{1,29}", TK_HEX}, // HEX
     {"[0-9]{1,31}", TK_INT},            // INT Ensure that str does not overflow
+    {"!=", TK_NOTEQ},
+    {"&&", TK_AND}
     /*FIXME: TK_DEREF and the usage of TK_REG*/
 
 };
@@ -288,6 +297,22 @@ static uint32_t calculate(uint32_t val1, uint32_t val2, int op) {
     TODO();
     // TODO: fix this DEREF
     return 0;
+  case TK_OR:
+    return val1 || val2;
+  case TK_LG:
+    return val1 > val2;
+  case TK_SM:
+    return val1 < val2;
+  case TK_LGEQ:
+    return val1 >= val2;
+  case TK_SMEQ:
+    return val1 <= val2;
+  case TK_AND:
+    return val1 && val2;
+  case TK_EQ:
+    return val1 == val2;
+  case TK_NOTEQ:
+    return val1 != val2;
   case TK_ADD:
     return val1 + val2;
   case TK_SUB:
