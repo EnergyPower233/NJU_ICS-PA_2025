@@ -380,6 +380,9 @@ static int get_precedence(int type) {
   case TK_MUL:
   case TK_DIV:
     return 5;
+  case TK_DEREF:
+  case TK_NEG:
+    return 6;
   default:
     panic("Unkown Operator Preference");
   }
