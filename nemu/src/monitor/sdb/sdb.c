@@ -71,7 +71,7 @@ static int cmd_si(char *args) {
 
 static int cmd_info(char *args) {
   if (!args) {
-    printf("Too few arguments: Command lose\nUsage:\ninfo w //check register "
+    printf("Too few arguments: Command lose\nUsage:\ninfo r //check register "
            "info\ninfo w //check watchpoint info\n");
     return 0;
   }
