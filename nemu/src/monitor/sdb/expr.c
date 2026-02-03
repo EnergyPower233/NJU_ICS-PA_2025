@@ -257,10 +257,13 @@ static uint32_t eval(int p, int q, bool *success) {
       val1 = 0;
     } else {
       val1 = eval(p, op - 1, success);
+      if (!*success)
+        return 0;
     }
     uint32_t val2 = eval(op + 1, q, success);
-    uint32_t res = calculate(val1, val2, op, success);
-    return success ? res : -1;
+    if (!*success)
+      return 0;
+    return calculate(val1, val2, op, success);
   }
 }
 
