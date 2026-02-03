@@ -211,18 +211,6 @@ static uint32_t eval(int p, int q) {
     if (!not_bnf_check_parentheses(p, q)) {
       panic();
     }
-    /* Non-operator tokens are not the main operator.
-    Tokens inside parentheses are not the main operator.
-    Note that we won't encounter cases where the entire expression is
-    surrounded by parentheses, as such cases have already been handled
-    in the corresponding [if block] of check_parentheses().
-    The main operator has the lowest precedence in the expression.
-    This is because the main operator is executed last.
-    When multiple operators have the same lowest precedence,
-    according to associativity, the operator that is evaluated last
-    is the main operator. For example, in 1 + 2 + 3,
-    the main operator should be the + on the right. */
-
     int op = -1, op_precedence = 100; // Given an invalid value
     for (int i = p; i <= q; ++i) {    // Search all tokens one by one
       if (tokens[i].type == TK_LP) {  // pass all tokens wrapped in parentheses
@@ -233,23 +221,23 @@ static uint32_t eval(int p, int q) {
         continue; // pass the token which is not operator
       } else if (tokens[i].type == TK_NEG || tokens[i].type == TK_DEREF ||
                  tokens[i].type == TK_NOT) {
-        if (i == p) {
+        if (i == p) { // single operator becomes main operator if and only if it
+                      // is the first operator, else it becomes a part of the
+                      // second expression
           op = i;
           break;
-        } // single operator becomes main operator if and only if it is the
-          // first operator, else it becomes a part of the second
-          // expression
+        }
       } else {
         int i_precedence = get_precedence(tokens[i].type);
-        if (i_precedence <= op_precedence) { // Prefer low preference and to get
-                                             // rightmost operator
+        if (i_precedence <= op_precedence) { // Prefer lower preference and to
+                                             // get rightmost operator
           op_precedence = i_precedence;
           op = i;
         }
       }
     }
     // Now op is the target operator
-    // since the value of op is determined,
+    // since the value of op been calculated,
     /* We should do more things here. */
     uint32_t val1;
     if (tokens[op].type == TK_NEG || tokens[op].type == TK_DEREF ||
