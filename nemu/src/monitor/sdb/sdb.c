@@ -125,6 +125,12 @@ static int cmd_x(char *args) {
   word_t target_mem = expr(args_e, &success);
   if (success) {
     for (int i = 0; i < N; ++i) {
+      if (target_mem < 0x80000000 || target_mem > 0x87ffffff) {
+        printf("Address = 0x%08x is out of bound of pmem [0x80000000, "
+               "0x87ffffff]\n",
+               target_mem);
+        return 0;
+      }
       printf("Address: 0x%08x Value: 0x%08x\n", target_mem,
              vaddr_read(target_mem, 4));
       target_mem += 4;
