@@ -296,6 +296,8 @@ static uint32_t calculate(uint32_t val1, uint32_t val2, int op) {
   switch (tokens[op].type) {
   case TK_NEG:
     return -val2;
+  case TK_NOT:
+    return !val2;
   case TK_DEREF:
     TODO();
     // TODO: fix this DEREF
