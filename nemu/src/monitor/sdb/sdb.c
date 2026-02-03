@@ -91,7 +91,7 @@ static int cmd_p(char *args) {
   if (success) {
     printf("%u (0x%08x)\n", result, result);
   } else {
-    printf("Invalid expression");
+    printf("Invalid expression\n");
   }
 
   return 0;

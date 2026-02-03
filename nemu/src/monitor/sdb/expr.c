@@ -13,6 +13,7 @@
  * See the Mulan PSL v2 for more details.
  ***************************************************************************************/
 
+#include "common.h"
 #include <isa.h>
 
 /* We use the POSIX regex functions to process regular expressions.
@@ -20,6 +21,7 @@
  */
 #include <regex.h>
 #include <stdint.h>
+#include <stdio.h>
 
 enum {
   TK_NOTYPE = 256,
@@ -177,9 +179,9 @@ static bool make_token(char *e) {
 static bool check_parentheses(int p, int q);
 static bool not_bnf_check_parentheses(int p, int q);
 static void pass_all_parentheses(int *iterator);
-static uint32_t calculate(uint32_t val1, uint32_t val2, int op);
+static uint32_t calculate(uint32_t val1, uint32_t val2, int op, bool *success);
 static int get_precedence(int type);
-static uint32_t eval(int p, int q) {
+static uint32_t eval(int p, int q, bool *success) {
   if (p > q) {
     /* Bad expression */
     panic("Bad expression: The start evaluation position is larger than the "
@@ -199,14 +201,16 @@ static uint32_t eval(int p, int q) {
       /*TODO: FIX THIS*/
       return 0;
     default:
-      panic("Unknown Oprand");
+      printf("Unknown Oprand\n");
+      *success = false;
+      return -1;
     }
 
   } else if (check_parentheses(p, q) == true) {
     /* The expression is surrounded by a matched pair of parentheses.
      * If that is the case, just throw away the parentheses.
      */
-    return eval(p + 1, q - 1);
+    return eval(p + 1, q - 1, success);
   } else {
     if (!not_bnf_check_parentheses(p, q)) {
       panic("cant pair the parentheses");
@@ -244,10 +248,10 @@ static uint32_t eval(int p, int q) {
         tokens[op].type == TK_NOT) {
       val1 = 0;
     } else {
-      val1 = eval(p, op - 1);
+      val1 = eval(p, op - 1, success);
     }
-    uint32_t val2 = eval(op + 1, q);
-    return calculate(val1, val2, op);
+    uint32_t val2 = eval(op + 1, q, success);
+    return calculate(val1, val2, op, success);
   }
 }
 
@@ -258,7 +262,8 @@ word_t expr(char *e, bool *success) {
   }
   /* TODO: Insert codes to evaluate the expression. */
   *success = true;
-  return eval(0, nr_token - 1);
+  word_t res = eval(0, nr_token - 1, success);
+  return *success == true ? res : 0;
 }
 
 // used functions
@@ -279,7 +284,7 @@ static void pass_all_parentheses(int *iterator) {
   }
 }
 
-static uint32_t calculate(uint32_t val1, uint32_t val2, int op) {
+static uint32_t calculate(uint32_t val1, uint32_t val2, int op, bool *success) {
   switch (tokens[op].type) {
   case TK_NEG:
     return -val2;
@@ -312,11 +317,14 @@ static uint32_t calculate(uint32_t val1, uint32_t val2, int op) {
   case TK_MUL:
     return val1 * val2;
   case TK_DIV:
-    if (val2 == 0)
-      panic("Zero Division\n");
+    if (val2 == 0) {
+      printf("Error: Zero Division\n");
+      *success = false;
+      return -1;
+    }
     return val1 / val2;
   default:
-    panic("Unknown operator");
+    panic("Error: Unknown operator\n");
   }
 }
 /*Parenthese parsing*/
