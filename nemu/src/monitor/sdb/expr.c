@@ -74,10 +74,10 @@ static struct rule {
     {">", TK_LG},
     {"<", TK_SM},
 
-    {"[$rsgta][0-9ap]([01])?", TK_REG}, // REG
-    {"0[Xx][0-9a-fA-F]{1,29}", TK_HEX}, // HEX
-    {"[0-9]{1,31}", TK_INT},            // INT Ensure that str does not overflow
-    /*FIXME: TK_DEREF and the usage of TK_REG*/
+    {"\\$[$frsgta][0-9aps]([01])?", TK_REG}, // REG
+    {"0[Xx][0-9a-fA-F]{1,29}", TK_HEX},      // HEX
+    {"[0-9]{1,31}", TK_INT}, // INT Ensure that str does not overflow
+                             /*FIXME: TK_DEREF and the usage of TK_REG*/
 
 };
 
@@ -257,7 +257,6 @@ word_t expr(char *e, bool *success) {
     return 0;
   }
   /* TODO: Insert codes to evaluate the expression. */
-  // TODO();
   *success = true;
   return eval(0, nr_token - 1);
 }
