@@ -19,6 +19,7 @@
 /* We use the POSIX regex functions to process regular expressions.
  * Type 'man regex' for more information about POSIX regex functions.
  */
+#include "sdb.h"
 #include <regex.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -309,10 +310,17 @@ static word_t calculate(word_t val1, word_t val2, int op, bool *success) {
     return -val2;
   case TK_NOT:
     return !val2;
-  case TK_DEREF:
-    TODO();
-    // TODO: fix this DEREF
-    return 0;
+  case TK_DEREF: {
+    if (val2 < 0x80000000 || val2 > 0x87ffffff) {
+      success = false;
+      printf("Address = 0x%08x is out of bound of pmem [0x80000000, "
+             "0x87ffffff]\n",
+             val2);
+      return 0;
+    } else {
+      return vaddr_read(val2, 4);
+    }
+  }
   case TK_OR:
     return val1 || val2;
   case TK_LG:
