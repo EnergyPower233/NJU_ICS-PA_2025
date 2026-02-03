@@ -179,9 +179,9 @@ static bool make_token(char *e) {
 static bool check_parentheses(int p, int q);
 static bool not_bnf_check_parentheses(int p, int q);
 static void pass_all_parentheses(int *iterator);
-static uint32_t calculate(uint32_t val1, uint32_t val2, int op, bool *success);
+static word_t calculate(word_t val1, word_t val2, int op, bool *success);
 static int get_precedence(int type);
-static uint32_t eval(int p, int q, bool *success) {
+static word_t eval(int p, int q, bool *success) {
   if (p > q) {
     /* Bad expression */
     panic("Bad expression: The start evaluation position is larger than the "
@@ -193,9 +193,9 @@ static uint32_t eval(int p, int q, bool *success) {
      */
     switch (tokens[p].type) {
     case TK_INT:
-      return (uint32_t)strtoul(tokens[p].str, NULL, 10);
+      return (word_t)strtoul(tokens[p].str, NULL, 10);
     case TK_HEX:
-      return (uint32_t)strtoul(tokens[p].str, NULL, 16);
+      return (word_t)strtoul(tokens[p].str, NULL, 16);
     case TK_REG:
       TODO();
       /*TODO: FIX THIS*/
@@ -251,7 +251,7 @@ static uint32_t eval(int p, int q, bool *success) {
     // Now op is the target operator
     // since the value of op been calculated,
     /* We should do more things here. */
-    uint32_t val1;
+    word_t val1;
     if (tokens[op].type == TK_NEG || tokens[op].type == TK_DEREF ||
         tokens[op].type == TK_NOT) {
       val1 = 0;
@@ -260,7 +260,7 @@ static uint32_t eval(int p, int q, bool *success) {
       if (!*success)
         return -1;
     }
-    uint32_t val2 = eval(op + 1, q, success);
+    word_t val2 = eval(op + 1, q, success);
     if (!*success)
       return -1;
     return calculate(val1, val2, op, success);
@@ -296,7 +296,7 @@ static void pass_all_parentheses(int *iterator) {
   }
 }
 
-static uint32_t calculate(uint32_t val1, uint32_t val2, int op, bool *success) {
+static word_t calculate(word_t val1, word_t val2, int op, bool *success) {
   switch (tokens[op].type) {
   case TK_NEG:
     return -val2;

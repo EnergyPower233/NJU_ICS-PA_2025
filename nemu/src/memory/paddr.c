@@ -23,6 +23,7 @@ static uint8_t *pmem = NULL;
 #else // CONFIG_PMEM_GARRAY
 static uint8_t pmem[CONFIG_MSIZE] PG_ALIGN = {};
 #endif
+
 /* It merely returns the host memory address which corresponds to the location
  * within the emulated physical memory where the default host program is
  * expected to reside. */
@@ -31,7 +32,8 @@ uint8_t *guest_to_host(paddr_t paddr) {
 } /*
 pmem : emulated memory (array), C applied
 paddr : Physical (memory) Address, PA emulated
-CONFIG_MBASE : the default memory address of the CPU which PA emulated */
+CONFIG_MBASE : the default memory address of the CPU that PA emulated */
+
 paddr_t host_to_guest(uint8_t *haddr) { return haddr - pmem + CONFIG_MBASE; }
 
 static word_t pmem_read(paddr_t addr, int len) {

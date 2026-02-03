@@ -14,10 +14,13 @@
  ***************************************************************************************/
 
 #include "sdb.h"
+#include "common.h"
 #include <cpu/cpu.h>
 #include <isa.h>
 #include <readline/history.h>
 #include <readline/readline.h>
+#include <stdint.h>
+#include <stdlib.h>
 // #include <stdlib.h>
 
 static int is_batch_mode = false;
@@ -86,26 +89,45 @@ static int cmd_info(char *args) {
   return 0;
 }
 
-static int cmd_x(char *args) {
-  /*
-  uint64_t N = (uint64_t)(strtol(args, NULL, 10));
-  char* expr = strtok(args, " ");
-  */
-  return 0;
-}
 static int cmd_p(char *args) {
   if (args == NULL) {
     printf("Usage: p EXPR\n");
     return 0;
+  } else {
+    bool success = true;
+    word_t result = expr(args, &success);
+    if (success) {
+      printf("%u (0x%08x)\n", result, result);
+    } else {
+      printf("Invalid expression\n");
+    }
   }
+  return 0;
+}
+
+static int cmd_x(char *args) {
+  char *args_N = strtok(args, " ");
+  if (args_N == NULL) {
+    printf("Usage: x N EXPR\n");
+    return 0;
+  }
+  word_t N = strtoul(args_N, NULL, 10);
+  if (!N) {
+    printf("Invalid length\n");
+    return 0;
+  }
+  char *args_e = strtok(NULL, "");
   bool success = true;
-  word_t result = expr(args, &success);
+  word_t target_mem = expr(args_e, &success);
   if (success) {
-    printf("%u (0x%8x)\n", result, result);
+    for (int i = 0; i < N; ++i) {
+      printf("Address: 0x%08x Value: 0x%08x\n", target_mem,
+             vaddr_read(target_mem, 4));
+      target_mem += 4;
+    }
   } else {
     printf("Invalid expression\n");
   }
-
   return 0;
 }
 static struct {
