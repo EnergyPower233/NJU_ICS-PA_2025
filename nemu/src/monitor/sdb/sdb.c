@@ -65,11 +65,15 @@ static int cmd_si(char *args) {
   if (steps)
     cpu_exec(steps);
   else
-    printf("Invalid arguments\n");
+    printf("Invalid arguments: '%s'\n", args);
   return 0;
 }
 
 static int cmd_info(char *args) {
+  if (!args) {
+    printf("Too few arguments: Command lose\n");
+    return 0;
+  }
   // Log Register status
   if (strcmp(args, "r") == 0)
     isa_reg_display();
