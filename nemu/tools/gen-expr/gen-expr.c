@@ -37,9 +37,9 @@ static int depth = 0;
 uint32_t choose(uint32_t n) { return rand() % n; }
 void gen_num() {
   int num = rand() % 100 + 1; // avoid generate 0
-  pos += sprintf(buf + pos, "%d",
+  pos += sprintf(buf + pos, "%du",
                  num); // sprintf returns the number of char it writes
-}
+} // GCC use unsigned
 
 void gen_rand_op() {
   char ops[] = {'+', '-', '*', '/'};
@@ -77,7 +77,15 @@ void gen_rand_expr() {
   gen_space();
   --depth;
 } //?
-
+void remove_u(char *s) { // Genius
+  char *dst = s;         // write pointer
+  while (*s) {           // read pointer
+    if (*s != 'u')
+      *dst++ = *s; // go through if not suffix'u'
+    s++;
+  }
+  *dst = '\0';
+}
 int main(int argc, char *argv[]) {
   int seed = time(0);
   srand(seed);
@@ -113,7 +121,7 @@ int main(int argc, char *argv[]) {
     int result; //?WTF //FIXME:
     ret = fscanf(fp, "%d", &result);
     pclose(fp);
-
+    remove_u(buf); // Remove 'u' before output
     printf("%u %s\n", result, buf);
   }
   return 0;
