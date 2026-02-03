@@ -20,7 +20,7 @@ void am_init_monitor();
 void engine_start();
 int is_exit_status_bad();
 
-void test_expression(); // From sdb.c to test the expr()
+extern void test_expression(); // From sdb.c to test the expr()
 
 int main(int argc, char *argv[]) {
   /* Initialize the monitor. */
