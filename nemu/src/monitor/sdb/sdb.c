@@ -230,7 +230,7 @@ void init_sdb() {
 /*test the expression evaluation */
 void test_expression() {
   bool success = true;
-  printf("%d", expr(NULL, &success));
+  printf("Hereis%d", expr(NULL, &success));
   // FILE *fp = fopen("/home/epower/ics2025/nemu/tools/gen-expr/input", "r");
   // assert(fp != NULL);
   // char expression[65536];
