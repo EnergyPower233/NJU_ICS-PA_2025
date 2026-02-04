@@ -149,7 +149,7 @@ void create_watchpoint(char* e) {
     }
   }
 }
-
+//
 void delete_watchpoint(word_t N) {
   if (head == NULL) {
     printf("There is no watchpoint\n");
