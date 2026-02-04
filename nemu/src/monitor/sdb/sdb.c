@@ -71,7 +71,7 @@ static int cmd_si(char* args) {
     printf("Invalid arguments: '%s'\n", args);
   return 0;
 }
-
+extern void wp_display();
 static int cmd_info(char* args) {
   if (args == NULL) {
     printf(
@@ -84,6 +84,7 @@ static int cmd_info(char* args) {
     isa_reg_display();
   // Log Watchpoint status
   else if (strcmp(args, "w") == 0) {
+    wp_display();
   } else
     printf("Unknown command '%s'\n", args);
   return 0;

@@ -109,3 +109,21 @@ bool scan_watchpoint() {
   }
   return false;
 }
+static bool is_enable = false;
+
+void wp_display() {
+  if (head == NULL) {
+    printf("No watchpoints.\n");
+    return;
+  }
+
+  printf("%-8s %-14s %-8s %-8s %s\n", "Num", "Type", "Disp", "Enb", "What");
+
+  WP* wp = head;
+  while (wp != NULL) {
+    printf("%-8d %-14s %-8s %-8s %s\n", wp->NO, "watchpoint", "keep",
+           (is_enable ? "y" : "n"), wp->expr);
+
+    wp = wp->next;
+  }
+}
