@@ -35,7 +35,7 @@ typedef struct watchpoint {
 
 static WP wp_pool[NR_WP] = {};
 static WP *head = NULL, *free_ = NULL;
-
+// Refered in init_monitor, just don't care about this
 void init_wp_pool() {
   int i;
   for (i = 0; i < NR_WP; i++) {
@@ -52,9 +52,10 @@ void init_wp(WP* wp) {
   wp->expr[0] = '\0';
   wp->val = 0;
 }
-WP* new_wp() {
+static WP* new_wp() {
   if (free_ == NULL) {
-    panic("There is no more free watchpoint available.\n");
+    printf("There is no more free watchpoint available.\n");
+    return NULL;
   } else {
     WP* used = free_;
     free_ = free_->next;
@@ -66,12 +67,13 @@ WP* new_wp() {
   }
 }
 
-void free_wp(WP* wp) {
+static void free_wp(WP* wp) {
   if (wp == NULL) {
-    panic("Error: Try to free a NULL watchpoint");
+    panic("Try to free a NULL watchpoint\n");
   }
   if (head == NULL) {
-    panic("Error: Try to free a watchpoint but the list is empty");
+    printf("Try to free a watchpoint but the list is empty\n");
+    return;
   } else if (wp == head) {
     head = head->next;
   } else {
@@ -89,6 +91,7 @@ void free_wp(WP* wp) {
   wp->next = free_;
   free_ = wp;
 }
+
 bool scan_watchpoint() {
   WP* iter = head;
   while (iter != NULL) {
@@ -109,8 +112,8 @@ bool scan_watchpoint() {
   }
   return false;
 }
-static bool is_enable = false;
 
+static bool is_enable = true;
 void wp_display() {
   if (head == NULL) {
     printf("No watchpoints.\n");
@@ -126,4 +129,54 @@ void wp_display() {
 
     wp = wp->next;
   }
+}
+
+void create_watchpoint(char* e) {
+  WP* wp = new_wp();
+  if (wp == NULL) {
+    return;
+  } else {
+    strncpy(wp->expr, e, 1023);
+    bool success = true;
+    word_t res = expr(e, &success);
+    if (success) {
+      wp->val = res;
+      printf("WatchPoint No.%d Set\n", wp->NO);
+      wp_display();
+    } else {
+      printf("Invalid Expression\n");
+      free_wp(wp);
+    }
+  }
+}
+
+void delete_watchpoint(word_t N) {
+  if (head == NULL) {
+    printf("There is no watchpoint\n");
+    return;
+  }
+  WP* iter = head;
+  while (iter != NULL) {
+    if (iter->NO == N) {
+      free_wp(iter);
+      printf("Watchpoint No.%d deleted\n", N);
+      return;
+    }
+    iter = iter->next;
+  }
+  printf("watchpoint No.%d not found\n", N);
+}
+void delete_all_watchpoint() {
+  if (head == NULL) {
+    printf("There is no watchpoint\n");
+    return;
+  }
+  WP* prev = head;
+  WP* iter = head->next;
+  while (iter != NULL) {
+    free_wp(prev);
+    prev = iter;
+    iter = iter->next;
+  }
+  free_wp(prev);
 }

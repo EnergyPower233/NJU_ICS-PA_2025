@@ -122,8 +122,8 @@ static int cmd_x(char* args) {
     printf("Empty Expression -> Memory Address\n");
     return 0;
   }
+
   bool success = true;
-  //
   word_t target_mem = expr(args_e, &success);
   if (success) {
     for (int i = 0; i < N; ++i) {
@@ -143,6 +143,25 @@ static int cmd_x(char* args) {
   }
   return 0;
 }
+// Watchpoint
+void create_watchpoint(char* e);
+static int cmd_w(char* args) {
+  create_watchpoint(args);
+  return 0;
+}
+void delete_watchpoint(word_t N);
+void delete_all_watchpoint();
+
+static int cmd_d(char* args) {
+  if (args == NULL) {
+    delete_all_watchpoint();
+    printf("All watchpoint deleted\n");
+  } else {
+    word_t N = strtoul(args, NULL, 10);
+    delete_watchpoint(N);
+  }
+  return 0;
+}
 static struct {
   const char* name;
   const char* description;
@@ -158,6 +177,8 @@ static struct {
     {"info", "Print status of Register or Watchpoint", cmd_info},
     {"x", "Scan memory", cmd_x},
     {"p", "Evaluate the expression", cmd_p},
+    {"w", "Set Watchpoint", cmd_w},
+    {"d", "Delete Watchpoint", cmd_d},
     /* TODO: Add more commands */
 };
 
