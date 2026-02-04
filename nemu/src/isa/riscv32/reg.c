@@ -32,6 +32,8 @@ word_t isa_reg_str2val(const char* s, bool* success) {
   for (int i = 0; i < ARRLEN(regs); ++i) {
     if (strcmp(s + 1, regs[i]) == 0)  // skip '$'
       return cpu.gpr[i];
+    else if (strcmp(s + 1, "pc") == 0)
+      return cpu.pc;
   }
   printf("Unkown register: %s\n", s);
   *success = false;
