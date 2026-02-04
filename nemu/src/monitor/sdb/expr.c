@@ -13,17 +13,17 @@
  * See the Mulan PSL v2 for more details.
  ***************************************************************************************/
 
-#include "common.h"
 #include <isa.h>
+#include "common.h"
 
 /* We use the POSIX regex functions to process regular expressions.
  * Type 'man regex' for more information about POSIX regex functions.
  */
-#include "sdb.h"
 #include <regex.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+#include "sdb.h"
 enum {
   TK_NOTYPE = 256,
   TK_EQ,
@@ -52,34 +52,34 @@ enum {
 };
 
 static struct rule {
-  const char *regex;
+  const char* regex;
   int token_type;
 } rules[] = {
     /* TODO: Add more rules.
      * Pay attention to the precedence level of different rules.
      */
-    {" +", TK_NOTYPE}, // spaces
+    {" +", TK_NOTYPE},  // spaces
     {"\\(", TK_LP},
     {"\\)", TK_RP},
-    {"==", TK_EQ}, // equal
+    {"==", TK_EQ},  // equal
     {"!=", TK_NOTEQ},
-    {"!", TK_NOT}, // ! must after !=
+    {"!", TK_NOT},  // ! must after !=
     {"&&", TK_AND},
     {"\\|\\|", TK_OR},
     {">=", TK_LGEQ},
     {"<=", TK_SMEQ},
 
-    {"\\+", TK_ADD}, // ADD
-    {"-", TK_SUB},   // sub OR NEGATIVE
-    {"\\*", TK_MUL}, // mul OR DEREFERENCE
-    {"/", TK_DIV},   // div
+    {"\\+", TK_ADD},  // ADD
+    {"-", TK_SUB},    // sub OR NEGATIVE
+    {"\\*", TK_MUL},  // mul OR DEREFERENCE
+    {"/", TK_DIV},    // div
     // Operation Symbol
     {">", TK_LG},
     {"<", TK_SM},
 
-    {"\\$[$a-z0-9]+", TK_REG},          // REG
-    {"0[Xx][0-9a-fA-F]{1,29}", TK_HEX}, // HEX
-    {"[0-9]{1,31}", TK_INT},            // INT Ensure that str does not overflow
+    {"\\$[$a-z0-9]+", TK_REG},           // REG
+    {"0[Xx][0-9a-fA-F]{1,29}", TK_HEX},  // HEX
+    {"[0-9]{1,31}", TK_INT},  // INT Ensure that str does not overflow
 };
 
 #define NR_REGEX ARRLEN(rules)
@@ -109,13 +109,13 @@ typedef struct token {
   char str[32];
 } Token;
 
-static Token tokens[1024] __attribute__((used)) = {}; // 1024 is more safer
+static Token tokens[1024] __attribute__((used)) = {};  // 1024 is more safer
 static int nr_token __attribute__((used)) = 0;
 
 static bool is_operand(int type);
 static bool is_operator(int type);
 
-static bool make_token(char *e) {
+static bool make_token(char* e) {
   int position = 0;
   int i;
   regmatch_t pmatch;
@@ -126,7 +126,7 @@ static bool make_token(char *e) {
     for (i = 0; i < NR_REGEX; i++) {
       if (regexec(&re[i], e + position, 1, &pmatch, 0) == 0 &&
           pmatch.rm_so == 0) {
-        char *substr_start = e + position;
+        char* substr_start = e + position;
         int substr_len = pmatch.rm_eo;
 
         Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s", i,
@@ -140,15 +140,16 @@ static bool make_token(char *e) {
          */
         tokens[nr_token].type = rules[i].token_type;
         if (tokens[nr_token].type == TK_NOTYPE)
-          break; // pass spaces
+          break;  // pass spaces
         switch (rules[i].token_type) {
-        case TK_HEX: // operands
-        case TK_INT:
-        case TK_REG:
-          snprintf(tokens[nr_token].str, 32, "%.*s", substr_len, substr_start);
-          break;
-        default: // operators
-          break;
+          case TK_HEX:  // operands
+          case TK_INT:
+          case TK_REG:
+            snprintf(tokens[nr_token].str, 32, "%.*s", substr_len,
+                     substr_start);
+            break;
+          default:  // operators
+            break;
         }
         ++nr_token;
         break;
@@ -177,35 +178,36 @@ static bool make_token(char *e) {
 
 static bool check_parentheses(int p, int q);
 static bool not_bnf_check_parentheses(int p, int q);
-static void pass_all_parentheses(int *iterator);
-static word_t calculate(word_t val1, word_t val2, int op, bool *success);
+static void pass_all_parentheses(int* iterator);
+static word_t calculate(word_t val1, word_t val2, int op, bool* success);
 static int get_precedence(int type);
-static word_t eval(int p, int q, bool *success) {
+static word_t eval(int p, int q, bool* success) {
   if (p > q) {
     /* Bad expression */
-    panic("Bad expression: The start evaluation position is larger than the "
-          "last evaluation position.\n");
+    panic(
+        "Bad expression: The start evaluation position is larger than the "
+        "last evaluation position.\n");
   } else if (p == q) {
     /* Single token.
      * For now this token should be a number.
      * Return the value of the number.
      */
     switch (tokens[p].type) {
-    case TK_INT:
-      return (word_t)strtoul(tokens[p].str, NULL, 10);
-    case TK_HEX:
-      return (word_t)strtoul(tokens[p].str, NULL, 16);
-    case TK_REG: {
-      word_t register_res = isa_reg_str2val(tokens[p].str, success);
-      if (success)
-        return register_res;
-      else
-        return 0;
-    }
-    default:
-      printf("Unknown Oprand\n");
-      *success = false;
-      return -1;
+      case TK_INT:
+        return (word_t)strtoul(tokens[p].str, NULL, 10);
+      case TK_HEX:
+        return (word_t)strtoul(tokens[p].str, NULL, 16);
+      case TK_REG: {
+        word_t register_res = isa_reg_str2val(tokens[p].str, success);
+        if (success)
+          return register_res;
+        else
+          return 0;
+      }
+      default:
+        printf("Unknown Oprand\n");
+        *success = false;
+        return -1;
     }
   } else if (check_parentheses(p, q) == true) {
     /* The expression is surrounded by a matched pair of parentheses.
@@ -224,26 +226,26 @@ static word_t eval(int p, int q, bool *success) {
       *success = false;
       return -1;
     }
-    int op = -1, op_precedence = 100; // Given an invalid value
-    for (int i = p; i <= q; ++i) {    // Search all tokens one by one
-      if (tokens[i].type == TK_LP) {  // skip all tokens wrapped in parentheses
+    int op = -1, op_precedence = 100;  // Given an invalid value
+    for (int i = p; i <= q; ++i) {     // Search all tokens one by one
+      if (tokens[i].type == TK_LP) {   // skip all tokens wrapped in parentheses
         pass_all_parentheses(&i);
         continue;
       }
       if (is_operand(tokens[i].type)) {
-        continue; // skip the token which is not operator
+        continue;  // skip the token which is not operator
       } else if (tokens[i].type == TK_NEG || tokens[i].type == TK_DEREF ||
                  tokens[i].type == TK_NOT) {
-        if (i == p) { // single operator becomes main operator if and only if it
-                      // is the first operator, else it becomes a part of the
-                      // second expression
+        if (i == p) {  // single operator becomes main operator if and only if
+                       // it is the first operator, else it becomes a part of
+                       // the second expression
           op = i;
           break;
         }
       } else {
         int i_precedence = get_precedence(tokens[i].type);
-        if (i_precedence <= op_precedence) { // Prefer lower preference and to
-                                             // get rightmost operator
+        if (i_precedence <= op_precedence) {  // Prefer lower preference and to
+                                              // get rightmost operator
           op_precedence = i_precedence;
           op = i;
         }
@@ -268,10 +270,11 @@ static word_t eval(int p, int q, bool *success) {
   }
 }
 
-word_t expr(char *e, bool *success) {
+word_t expr(char* e, bool* success) {
   if (e == NULL) {
-    printf("Error: Empty expression: Passed NULL to expr(char *e, bool "
-           "*success)\n");
+    printf(
+        "Error: Empty expression: Passed NULL to expr(char *e, bool "
+        "*success)\n");
     return 0;
   }
   if (!make_token(e)) {
@@ -285,12 +288,14 @@ word_t expr(char *e, bool *success) {
 }
 
 // used functions
-static bool is_operator(int type) { return !is_operand(type); }
+static bool is_operator(int type) {
+  return !is_operand(type);
+}
 static bool is_operand(int type) {
   return (type == TK_HEX || type == TK_INT || type == TK_REG);
 }
 
-static void pass_all_parentheses(int *iterator) {
+static void pass_all_parentheses(int* iterator) {
   int cnt = 1;
   while (cnt) {
     ++(*iterator);
@@ -302,54 +307,55 @@ static void pass_all_parentheses(int *iterator) {
   }
 }
 
-static word_t calculate(word_t val1, word_t val2, int op, bool *success) {
+static word_t calculate(word_t val1, word_t val2, int op, bool* success) {
   switch (tokens[op].type) {
-  case TK_NEG:
-    return -val2;
-  case TK_NOT:
-    return !val2;
-  case TK_DEREF: {
-    if (val2 < 0x80000000 || val2 > 0x87ffffff) {
-      success = false;
-      printf("Address = 0x%08x is out of bound of pmem [0x80000000, "
-             "0x87ffffff]\n",
-             val2);
-      return 0;
-    } else {
-      return vaddr_read(val2, 4);
+    case TK_NEG:
+      return -val2;
+    case TK_NOT:
+      return !val2;
+    case TK_DEREF: {
+      if (val2 < 0x80000000 || val2 > 0x87ffffff) {
+        success = false;
+        printf("Address = " FMT_WORD
+               " is out of bound of pmem [0x80000000, "
+               "0x87ffffff]\n",
+               val2);
+        return 0;
+      } else {
+        return vaddr_read(val2, 4);
+      }
     }
-  }
-  case TK_OR:
-    return val1 || val2;
-  case TK_LG:
-    return val1 > val2;
-  case TK_SM:
-    return val1 < val2;
-  case TK_LGEQ:
-    return val1 >= val2;
-  case TK_SMEQ:
-    return val1 <= val2;
-  case TK_AND:
-    return val1 && val2;
-  case TK_EQ:
-    return val1 == val2;
-  case TK_NOTEQ:
-    return val1 != val2;
-  case TK_ADD:
-    return val1 + val2;
-  case TK_SUB:
-    return val1 - val2;
-  case TK_MUL:
-    return val1 * val2;
-  case TK_DIV:
-    if (val2 == 0) {
-      printf("Error: Zero Division\n");
-      *success = false;
-      return -1;
-    }
-    return val1 / val2;
-  default:
-    panic("Unknown operator\n");
+    case TK_OR:
+      return val1 || val2;
+    case TK_LG:
+      return val1 > val2;
+    case TK_SM:
+      return val1 < val2;
+    case TK_LGEQ:
+      return val1 >= val2;
+    case TK_SMEQ:
+      return val1 <= val2;
+    case TK_AND:
+      return val1 && val2;
+    case TK_EQ:
+      return val1 == val2;
+    case TK_NOTEQ:
+      return val1 != val2;
+    case TK_ADD:
+      return val1 + val2;
+    case TK_SUB:
+      return val1 - val2;
+    case TK_MUL:
+      return val1 * val2;
+    case TK_DIV:
+      if (val2 == 0) {
+        printf("Error: Zero Division\n");
+        *success = false;
+        return -1;
+      }
+      return val1 / val2;
+    default:
+      panic("Unknown operator\n");
   }
 }
 /*Parenthese parsing*/
@@ -387,29 +393,29 @@ static bool check_parentheses(int p, int q) {
 }
 static int get_precedence(int type) {
   switch (type) {
-  case TK_OR:
-    return 0;
-  case TK_AND:
-    return 1;
-  case TK_EQ:
-  case TK_NOTEQ:
-    return 2;
-  case TK_SM:
-  case TK_SMEQ:
-  case TK_LG:
-  case TK_LGEQ:
-    return 3;
-  case TK_ADD:
-  case TK_SUB:
-    return 4;
-  case TK_MUL:
-  case TK_DIV:
-    return 5;
-  case TK_DEREF:
-  case TK_NOT:
-  case TK_NEG:
-    return 6;
-  default:
-    panic("Unkown Operator Preference\n");
+    case TK_OR:
+      return 0;
+    case TK_AND:
+      return 1;
+    case TK_EQ:
+    case TK_NOTEQ:
+      return 2;
+    case TK_SM:
+    case TK_SMEQ:
+    case TK_LG:
+    case TK_LGEQ:
+      return 3;
+    case TK_ADD:
+    case TK_SUB:
+      return 4;
+    case TK_MUL:
+    case TK_DIV:
+      return 5;
+    case TK_DEREF:
+    case TK_NOT:
+    case TK_NEG:
+      return 6;
+    default:
+      panic("Unkown Operator Preference\n");
   }
 }

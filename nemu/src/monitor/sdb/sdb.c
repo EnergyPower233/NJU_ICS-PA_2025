@@ -14,13 +14,13 @@
  ***************************************************************************************/
 
 #include "sdb.h"
-#include "common.h"
 #include <cpu/cpu.h>
 #include <isa.h>
 #include <readline/history.h>
 #include <readline/readline.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "common.h"
 // #include <stdlib.h>
 
 static int is_batch_mode = false;
@@ -30,8 +30,8 @@ void init_wp_pool();
 
 /* We use the 'readline' library to provide more flexibility to read from stdin.
  */
-static char *rl_gets() {
-  static char *line_read = NULL;
+static char* rl_gets() {
+  static char* line_read = NULL;
 
   if (line_read) {
     free(line_read);
@@ -47,19 +47,19 @@ static char *rl_gets() {
   return line_read;
 }
 
-static int cmd_c(char *args) {
+static int cmd_c(char* args) {
   cpu_exec(-1);
   return 0;
 }
 
-static int cmd_q(char *args) {
+static int cmd_q(char* args) {
   nemu_state.state = NEMU_QUIT;
-  return -1; // cause the exit of mainloop
+  return -1;  // cause the exit of mainloop
 }
 
-static int cmd_help(char *args);
+static int cmd_help(char* args);
 
-static int cmd_si(char *args) {
+static int cmd_si(char* args) {
   if (args == NULL) {
     cpu_exec(1);
     return 0;
@@ -72,10 +72,11 @@ static int cmd_si(char *args) {
   return 0;
 }
 
-static int cmd_info(char *args) {
+static int cmd_info(char* args) {
   if (args == NULL) {
-    printf("Too few arguments: Command lose\nUsage:\ninfo r //check register "
-           "info\ninfo w //check watchpoint info\n");
+    printf(
+        "Too few arguments: Command lose\nUsage:\ninfo r //check register "
+        "info\ninfo w //check watchpoint info\n");
     return 0;
   }
   // Log Register status
@@ -83,13 +84,12 @@ static int cmd_info(char *args) {
     isa_reg_display();
   // Log Watchpoint status
   else if (strcmp(args, "w") == 0) {
-
   } else
     printf("Unknown command '%s'\n", args);
   return 0;
 }
 
-static int cmd_p(char *args) {
+static int cmd_p(char* args) {
   if (args == NULL) {
     printf("Usage: p EXPR\n");
     return 0;
@@ -97,7 +97,7 @@ static int cmd_p(char *args) {
     bool success = true;
     word_t result = expr(args, &success);
     if (success) {
-      printf("%u (0x%08x)\n", result, result);
+      printf("%u (" FMT_WORD ")\n", result, result);
     } else {
       printf("Invalid expression\n");
     }
@@ -105,8 +105,8 @@ static int cmd_p(char *args) {
   return 0;
 }
 
-static int cmd_x(char *args) {
-  char *args_N = strtok(args, " ");
+static int cmd_x(char* args) {
+  char* args_N = strtok(args, " ");
   if (args_N == NULL) {
     printf("Usage: x N EXPR\n");
     return 0;
@@ -116,7 +116,7 @@ static int cmd_x(char *args) {
     printf("Invalid length\n");
     return 0;
   }
-  char *args_e = strtok(NULL, "");
+  char* args_e = strtok(NULL, "");
   if (args_e == NULL) {
     printf("Empty Expression -> Memory Address\n");
     return 0;
@@ -127,12 +127,13 @@ static int cmd_x(char *args) {
   if (success) {
     for (int i = 0; i < N; ++i) {
       if (target_mem < 0x80000000 || target_mem > 0x87ffffff) {
-        printf("Address = 0x%08x is out of bound of pmem [0x80000000, "
+        printf("Address = " FMT_WORD
+               " is out of bound of pmem [0x80000000, "
                "0x87ffffff]\n",
                target_mem);
         return 0;
       }
-      printf("Address: 0x%08x | Value: 0x%08x\n", target_mem,
+      printf("Address: " FMT_WORD " | Value: " FMT_WORD "\n", target_mem,
              vaddr_read(target_mem, 4));
       target_mem += 4;
     }
@@ -142,9 +143,9 @@ static int cmd_x(char *args) {
   return 0;
 }
 static struct {
-  const char *name;
-  const char *description;
-  int (*handler)(char *);
+  const char* name;
+  const char* description;
+  int (*handler)(char*);
 } cmd_table[] = {
     {"help", "Display information about all supported commands", cmd_help},
     {"c", "Continue the execution of the program", cmd_c},
@@ -161,9 +162,9 @@ static struct {
 
 #define NR_CMD ARRLEN(cmd_table)
 
-static int cmd_help(char *args) {
+static int cmd_help(char* args) {
   /* extract the first argument */
-  char *arg = strtok(NULL, " ");
+  char* arg = strtok(NULL, " ");
   int i;
 
   if (arg == NULL) {
@@ -183,7 +184,9 @@ static int cmd_help(char *args) {
   return 0;
 }
 
-void sdb_set_batch_mode() { is_batch_mode = true; }
+void sdb_set_batch_mode() {
+  is_batch_mode = true;
+}
 
 void sdb_mainloop() {
   if (is_batch_mode) {
@@ -191,11 +194,11 @@ void sdb_mainloop() {
     return;
   }
 
-  for (char *str; (str = rl_gets()) != NULL;) {
-    char *str_end = str + strlen(str);
+  for (char* str; (str = rl_gets()) != NULL;) {
+    char* str_end = str + strlen(str);
 
     /* extract the first token as the command */
-    char *cmd = strtok(str, " ");
+    char* cmd = strtok(str, " ");
     if (cmd == NULL) {
       continue;
     }
@@ -203,7 +206,7 @@ void sdb_mainloop() {
     /* treat the remaining string as the arguments,
      * which may need further parsing
      */
-    char *args = cmd + strlen(cmd) + 1;
+    char* args = cmd + strlen(cmd) + 1;
     if (args >= str_end) {
       args = NULL;
     }
@@ -240,19 +243,19 @@ void init_sdb() {
 
 /*test the expression evaluation */
 void test_expression() {
-  FILE *fp = fopen("/home/epower/ics2025/nemu/tools/gen-expr/input", "r");
+  FILE* fp = fopen("/home/epower/ics2025/nemu/tools/gen-expr/input", "r");
   assert(fp != NULL);
   char expression[65536];
   unsigned expected;
   int cnt = 0;
   int pass = 0;
-  bool AP = true;                             // All Passed
-  while (fscanf(fp, "%u ", &expected) == 1) { // read the result
+  bool AP = true;                              // All Passed
+  while (fscanf(fp, "%u ", &expected) == 1) {  // read the result
     if (fgets(expression, sizeof(expression), fp) == NULL)
-      break; // The End of the file
+      break;  // The End of the file
     expression[strcspn(expression, "\n")] =
-        '\0'; // Replace the \n to \0 to make sure the expression string is
-              // valid
+        '\0';  // Replace the \n to \0 to make sure the expression string is
+               // valid
     bool success = true;
     unsigned result = expr(expression, &success);
     ++cnt;
